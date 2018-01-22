@@ -23,8 +23,72 @@ void ATankPlayerController::BeginPlay()
 	}
 }
 
+void ATankPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	AimTowardsCrosshair();
+}
+
 ATank* ATankPlayerController::GetControlledTank() const
 {
 	return Cast<ATank>(GetPawn());
 	
 }
+
+void ATankPlayerController::AimTowardsCrosshair()
+{
+	if (!GetControlledTank()) { return; }
+
+	FVector HitLocation;
+
+	
+	
+	if (GetSightRayHitLocation(HitLocation))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit location : %s"), *HitLocation.ToString());
+	}
+}
+
+bool ATankPlayerController::GetSightRayHitLocation(FVector &OutHitLocation) const
+{
+	auto ScreenLocation = GetCrosshairScreenLocation();
+
+	FHitResult HitResult;
+	float TankRange = 1000.f;
+	FVector ControlledTankLocation;
+	FRotator ControlledTankRotation;
+
+	GetPlayerViewPoint(ControlledTankLocation, ControlledTankRotation);
+	FVector TankMaximumHitLocation = TankRange * ControlledTankLocation + ControlledTankLocation;
+
+
+	GetWorld()->LineTraceSingleByObjectType(
+		HitResult,
+		ControlledTankLocation,
+		TankMaximumHitLocation,
+		ECollisionChannel::ECC_WorldStatic,
+		FCollisionQueryParams(FName(TEXT("")), false, GetOwner())
+	);
+
+	OutHitLocation = HitResult.Location;
+
+	// raycast from current tank
+	// if hit
+	//return hit location
+	return HitResult.bBlockingHit;
+}
+
+FVector2D ATankPlayerController::GetCrosshairScreenLocation() const
+{
+	int32 ViewportSizeX, ViewportSizeY;
+	GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+	return FVector2D(
+		ViewportSizeX*CrosshairXLocation,
+		ViewportSizeY*CrosshairdYLocation
+	);
+	
+	
+}
+

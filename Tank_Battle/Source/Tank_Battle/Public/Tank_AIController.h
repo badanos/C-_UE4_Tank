@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/World.h"
 #include "Tank.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
+#include "Runtime/Engine/Classes/Engine/World.h"
 #include "AIController.h"
 #include "Tank_AIController.generated.h"
 
@@ -18,10 +20,19 @@ class TANK_BATTLE_API ATank_AIController : public AAIController
 
 public:
 
-	void BeginPlay() override;
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
 	
 	ATank* GetControlledPawn();
 
 	ATank* GetPlayerTank();
+
+private:
+
+	
+
+	
 	
 };
+
